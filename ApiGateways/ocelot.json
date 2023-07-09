@@ -119,7 +119,37 @@
       ],
       "UpstreamPathTemplate": "/Order/{userName}",
       "UpstreamHttpMethod": [ "GET" ]
+    },
+
+    //ProductWithBasketInfoAggregator,
+
+    {
+      "DownstreamPathTemplate": "/api/v1/Catalog/{id}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "44390"
+        }
+      ],
+      "UpstreamPathTemplate": "/ProductWithBasketInfo/{id}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Aggregator": "ProductWithBasketInfoAggregator"
+    },
+    {
+      "DownstreamPathTemplate": "/api/v1/Basket/{userName}",
+      "DownstreamScheme": "http",
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "localhost",
+          "Port": "44323"
+        }
+      ],
+      "UpstreamPathTemplate": "/ProductWithBasketInfo/{userName}",
+      "UpstreamHttpMethod": [ "GET" ],
+      "Aggregator": "ProductWithBasketInfoAggregator"
     }
+
   ],
   "GlobalConfiguration": {
     "BaseUrl": "http://localhost:5000"
