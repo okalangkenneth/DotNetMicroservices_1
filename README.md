@@ -26,7 +26,8 @@ RabbitMQ: Facilitates asynchronous messaging between the microservices "Async Me
 ### Resilience
 Implement patterns like Circuit Breaker, Retry, and Timeout to ensure the system remains operational even when some services fail.
 
-´´´´// Example code snippet for resilience using Policy
+´´´´C#
+// Example code snippet for resilience using Policy
 var retryPolicy = Policy
     .Handle<HttpRequestException>()
     .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
@@ -38,6 +39,7 @@ var circuitBreakerPolicy = Policy
 services.AddHttpClient("ResilientClient")
     .AddPolicyHandler(retryPolicy)
     .AddPolicyHandler(circuitBreakerPolicy);
+    
     ´´´´
 
 
