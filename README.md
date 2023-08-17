@@ -67,6 +67,17 @@ services.AddHttpClient("ResilientClient")
 ### Logging
 Elastic Stack (ELK): Provides centralized distributed logging, making it easy to monitor and troubleshoot the system. All microservices "Send Logs" to the ELK Stack for centralized logging.
 
+````C#
+// Example code snippet for logging setup
+var logger = new LoggerConfiguration()
+    .WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri("http://localhost:9200"))
+    {
+        AutoRegisterTemplate = true,
+    })
+    .CreateLogger();
+````
+
+
 ### Containerization
 Docker Compose: Enables containerization of each microservice and their respective databases, simplifying deployment and scaling.
 
