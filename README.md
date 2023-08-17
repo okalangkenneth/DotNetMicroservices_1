@@ -6,10 +6,10 @@ This repository showcases a comprehensive microservices solution built using .NE
 ## Features
 
 ### Microservices Creation
-Basket Service: Uses Redis as its database.
-Catalog Service: Utilizes MongoDB for data storage.
-Discount Service: Employs PostgreSQL for its database needs.
-Ordering Service: Leverages SQL Server for data persistence.
+- Basket Service: Uses Redis as its database.
+- Catalog Service: Utilizes MongoDB for data storage.
+- Discount Service: Employs PostgreSQL for its database needs.
+- Ordering Service: Leverages SQL Server for data persistence.
 
 ### API Gateway
 Ocelot: Acts as the entry point for all client requests, routing them to the appropriate microservices.
