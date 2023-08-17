@@ -19,6 +19,14 @@ This repository showcases a comprehensive microservices solution built using .NE
 ### API Gateway
 Ocelot: Acts as the entry point for all client requests, routing  "API Requests" to the appropriate microservices.
 
+````C#
+// Example code snippet for API Gateway setup
+public void ConfigureServices(IServiceCollection services)
+{
+    services.AddOcelot();
+}
+````
+
 ### Inter-Service Communication
 
 RabbitMQ: Facilitates asynchronous messaging between the microservices "Async Messages", ensuring smooth and efficient communication.
