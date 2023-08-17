@@ -16,7 +16,7 @@ Ocelot: Acts as the entry point for all client requests, routing them to the app
 
 ### Inter-Service Communication
 
-### RabbitMQ: Facilitates asynchronous messaging between the microservices, ensuring smooth and efficient communication.
+RabbitMQ: Facilitates asynchronous messaging between the microservices, ensuring smooth and efficient communication.
 
 ### Logging
 Elastic Stack (ELK): Provides centralized distributed logging, making it easy to monitor and troubleshoot the system.
