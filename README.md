@@ -40,7 +40,7 @@ services.AddHttpClient("ResilientClient")
     .AddPolicyHandler(retryPolicy)
     .AddPolicyHandler(circuitBreakerPolicy);
     
-    ´´´´
+´´´´
 
 
 ### Logging
