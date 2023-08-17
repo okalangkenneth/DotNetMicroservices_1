@@ -31,6 +31,20 @@ public void ConfigureServices(IServiceCollection services)
 
 RabbitMQ: Facilitates asynchronous messaging between the microservices "Async Messages", ensuring smooth and efficient communication.
 
+````C#
+// Example code snippet for RabbitMQ messaging
+public void SendMessage(string message)
+{
+    var factory = new ConnectionFactory() { HostName = "localhost" };
+    using (var connection = factory.CreateConnection())
+    using (var channel = connection.CreateModel())
+    {
+        channel.QueueDeclare(queue: "messages", durable: false, exclusive: false, autoDelete: false, arguments: null);
+        var body = Encoding.UTF8.GetBytes(message);
+        channel.BasicPublish(exchange: "", routingKey: "messages", basicProperties: null, body: body);
+    }
+}
+````
 ### Resilience
 Implement patterns like Circuit Breaker, Retry, and Timeout to ensure the system remains operational even when some services fail.
 
