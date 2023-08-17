@@ -65,7 +65,34 @@ services.AddHttpClient("ResilientClient")
 ````
 
 ### Logging
-Elastic Stack (ELK): Provides centralized distributed logging, making it easy to monitor and troubleshoot the system. All microservices "Send Logs" to the ELK Stack for centralized logging.
+Docker Compose is used to setup Elasticsearch, Logstash, and Kibana (ELK) services. All microservices "Send Logs" to the ELK Stack for centralized logging, making it easy to monitor and troubleshoot the system
+
+````C#
+// Example for the docker compose file
+version: '3'
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.1
+    environment:
+      - discovery.type=single-node
+    ports:
+      - 9200:9200
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.10.1
+    ports:
+      - 5000:5000
+    volumes:
+      - ./logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    depends_on:
+      - elasticsearch
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.10.1
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+````
+
 
 ````C#
 // Example code snippet for logging setup
