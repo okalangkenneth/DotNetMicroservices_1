@@ -12,7 +12,7 @@ This repository showcases a comprehensive microservices solution built using .NE
 - Ordering Service: Leverages SQL Server for data persistence.
 
 ### API Gateway
-Ocelot: Acts as the entry point for all client requests, routing them to the appropriate microservices.
+Ocelot: Acts as the entry point for all client requests, routing  "API Requests" to the appropriate microservices.
 
 ### Inter-Service Communication
 
