@@ -23,6 +23,24 @@ Ocelot: Acts as the entry point for all client requests, routing  "API Requests"
 
 RabbitMQ: Facilitates asynchronous messaging between the microservices "Async Messages", ensuring smooth and efficient communication.
 
+### Resilience
+Implement patterns like Circuit Breaker, Retry, and Timeout to ensure the system remains operational even when some services fail.
+
+´´´´// Example code snippet for resilience using Policy
+var retryPolicy = Policy
+    .Handle<HttpRequestException>()
+    .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+
+var circuitBreakerPolicy = Policy
+    .Handle<HttpRequestException>()
+    .CircuitBreakerAsync(3, TimeSpan.FromSeconds(10));
+
+services.AddHttpClient("ResilientClient")
+    .AddPolicyHandler(retryPolicy)
+    .AddPolicyHandler(circuitBreakerPolicy);
+    ´´´´
+
+
 ### Logging
 Elastic Stack (ELK): Provides centralized distributed logging, making it easy to monitor and troubleshoot the system. All microservices "Send Logs" to the ELK Stack for centralized logging.
 
