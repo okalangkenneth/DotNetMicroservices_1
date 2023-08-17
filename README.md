@@ -26,7 +26,7 @@ RabbitMQ: Facilitates asynchronous messaging between the microservices "Async Me
 ### Resilience
 Implement patterns like Circuit Breaker, Retry, and Timeout to ensure the system remains operational even when some services fail.
 
-´´´´C#
+````C#
 // Example code snippet for resilience using Policy
 var retryPolicy = Policy
     .Handle<HttpRequestException>()
@@ -40,8 +40,7 @@ services.AddHttpClient("ResilientClient")
     .AddPolicyHandler(retryPolicy)
     .AddPolicyHandler(circuitBreakerPolicy);
     
-´´´´
-
+````
 
 ### Logging
 Elastic Stack (ELK): Provides centralized distributed logging, making it easy to monitor and troubleshoot the system. All microservices "Send Logs" to the ELK Stack for centralized logging.
