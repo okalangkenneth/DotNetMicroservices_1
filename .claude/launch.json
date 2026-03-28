@@ -1,0 +1,47 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Demo UI",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["serve", "-s", ".", "-p", "3001", "--no-clipboard"],
+      "port": 3001
+    },
+    {
+      "name": "Full Stack (docker-compose)",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up"],
+      "port": 5000
+    },
+    {
+      "name": "Catalog API",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up", "catalog.api"],
+      "port": 8000
+    },
+    {
+      "name": "Basket API",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up", "basket.api"],
+      "port": 8001
+    },
+    {
+      "name": "Discount API",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up", "discount.api"],
+      "port": 8002
+    },
+    {
+      "name": "Ordering API",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up", "ordering.api"],
+      "port": 8003
+    },
+    {
+      "name": "API Gateway",
+      "runtimeExecutable": "docker-compose",
+      "runtimeArgs": ["up", "apigateway"],
+      "port": 5000
+    }
+  ]
+}

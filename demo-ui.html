@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shop Demo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      color: #222;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────────── */
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e0e0e0;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
+    header nav { display: flex; gap: 12px; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 0.15s;
+    }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn:not(:disabled):hover { opacity: 0.85; }
+    .btn-primary   { background: #111; color: #fff; }
+    .btn-secondary { background: #fff; color: #111; border: 1px solid #ccc; }
+    .btn-success   { background: #16a34a; color: #fff; }
+    .btn-outline   { background: transparent; color: #111; border: 1px solid #ccc; }
+
+    /* ── Layout ─────────────────────────────────────────────── */
+    .layout {
+      display: flex;
+      gap: 0;
+      min-height: calc(100vh - 56px);
+    }
+
+    main {
+      flex: 1;
+      padding: 28px 24px;
+      max-width: 900px;
+    }
+
+    /* ── Product grid ───────────────────────────────────────── */
+    .section-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border: 1px solid #e8e8e8;
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .card-category {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: #888;
+    }
+    .card-name { font-size: 15px; font-weight: 600; line-height: 1.3; }
+    .card-summary { font-size: 13px; color: #555; line-height: 1.4; }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: auto;
+      padding-top: 10px;
+    }
+    .card-price { font-size: 17px; font-weight: 700; }
+
+    /* ── Basket sidebar ─────────────────────────────────────── */
+    aside {
+      width: 300px;
+      min-width: 300px;
+      background: #fff;
+      border-left: 1px solid #e0e0e0;
+      display: flex;
+      flex-direction: column;
+      padding: 28px 20px;
+      gap: 16px;
+      position: sticky;
+      top: 56px;
+      height: calc(100vh - 56px);
+      overflow-y: auto;
+    }
+    aside h2 { font-size: 16px; font-weight: 600; }
+
+    .basket-empty { font-size: 13px; color: #888; }
+
+    .basket-items { display: flex; flex-direction: column; gap: 12px; }
+
+    .basket-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+    }
+    .basket-item-name { font-weight: 500; flex: 1; line-height: 1.4; }
+    .basket-item-right { text-align: right; white-space: nowrap; }
+    .basket-item-price { font-weight: 600; }
+    .basket-item-qty { color: #888; font-size: 12px; }
+
+    .basket-remove {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #bbb;
+      font-size: 16px;
+      line-height: 1;
+      padding: 0 2px;
+    }
+    .basket-remove:hover { color: #e53e3e; }
+
+    .basket-divider { border: none; border-top: 1px solid #e8e8e8; }
+
+    .basket-total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    /* ── Panels (confirmation / orders) ────────────────────── */
+    .panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+    }
+    .panel.open { display: flex; }
+
+    .panel-box {
+      background: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 480px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .panel-box h2 { font-size: 18px; font-weight: 700; }
+    .panel-box p  { font-size: 14px; color: #444; line-height: 1.5; }
+
+    .order-row {
+      background: #f9f9f9;
+      border: 1px solid #e8e8e8;
+      border-radius: 8px;
+      padding: 14px 16px;
+      font-size: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .order-row strong { font-size: 14px; }
+
+    /* ── State messages ─────────────────────────────────────── */
+    .msg { font-size: 14px; color: #555; padding: 8px 0; }
+    .msg.error { color: #e53e3e; }
+
+    /* ── Spinner ────────────────────────────────────────────── */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid #ccc;
+      border-top-color: #555;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Shop Demo</h1>
+  <nav>
+    <button class="btn btn-outline" id="btn-view-orders">View Orders</button>
+  </nav>
+</header>
+
+<div class="layout">
+  <main>
+    <div class="section-title">Products</div>
+    <div id="catalog-msg" class="msg">Loading catalogue…</div>
+    <div class="grid" id="catalog-grid"></div>
+  </main>
+
+  <aside>
+    <h2>Basket</h2>
+    <div id="basket-content">
+      <p class="basket-empty">Your basket is empty.</p>
+    </div>
+    <button class="btn btn-primary" id="btn-checkout" style="display:none">Checkout</button>
+    <div id="checkout-msg" class="msg" style="display:none"></div>
+  </aside>
+</div>
+
+<!-- Confirmation panel -->
+<div class="panel" id="panel-confirm">
+  <div class="panel-box">
+    <h2>Order placed!</h2>
+    <p>Your order has been received and is being processed. We'll send a confirmation to <strong>demo@example.com</strong>.</p>
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn btn-success" id="btn-confirm-orders">View my orders</button>
+      <button class="btn btn-secondary" id="btn-confirm-close">Continue shopping</button>
+    </div>
+  </div>
+</div>
+
+<!-- Orders panel -->
+<div class="panel" id="panel-orders">
+  <div class="panel-box">
+    <h2>Orders — demo_user</h2>
+    <div id="orders-content"><span class="spinner"></span></div>
+    <button class="btn btn-secondary" id="btn-orders-close">Close</button>
+  </div>
+</div>
+
+<script>
+  const API = {
+    catalog:  'http://localhost:8000/api/v1/Catalog',
+    basket:   'http://localhost:8001/api/v1/Basket',
+    checkout: 'http://localhost:8001/api/v1/Basket/Checkout',
+    orders:   'http://localhost:8003/api/v1/Order/demo_user',
+  };
+
+  const DEMO_BILLING = {
+    userName:     'demo_user',
+    firstName:    'Demo',
+    lastName:     'User',
+    emailAddress: 'demo@example.com',
+    addressLine:  '123 Demo Street',
+    country:      'Sweden',
+    state:        'Stockholm',
+    zipCode:      '11122',
+    cardName:     'Demo User',
+    cardNumber:   '4111111111111111',
+    expiration:   '12/26',
+    cvv:          '123',
+    paymentMethod: 1,
+  };
+
+  // ── State ──────────────────────────────────────────────────
+  let basket = {};   // { productId: { productName, price, quantity, color } }
+
+  // ── Helpers ────────────────────────────────────────────────
+  const $ = id => document.getElementById(id);
+
+  function fmt(n) {
+    return '$' + Number(n).toFixed(2);
+  }
+
+  function basketTotal() {
+    return Object.values(basket).reduce((s, i) => s + i.price * i.quantity, 0);
+  }
+
+  function basketItems() {
+    return Object.entries(basket).map(([productId, item]) => ({ productId, ...item }));
+  }
+
+  // ── Render basket ──────────────────────────────────────────
+  function renderBasket() {
+    const items = basketItems();
+    const content = $('basket-content');
+    const btnCheckout = $('btn-checkout');
+
+    if (items.length === 0) {
+      content.innerHTML = '<p class="basket-empty">Your basket is empty.</p>';
+      btnCheckout.style.display = 'none';
+      return;
+    }
+
+    btnCheckout.style.display = '';
+
+    const rows = items.map(item => `
+      <div class="basket-item">
+        <span class="basket-item-name">${esc(item.productName)}</span>
+        <div class="basket-item-right">
+          <div class="basket-item-price">${fmt(item.price * item.quantity)}</div>
+          <div class="basket-item-qty">qty ${item.quantity}</div>
+        </div>
+        <button class="basket-remove" data-id="${esc(item.productId)}" title="Remove">×</button>
+      </div>
+    `).join('');
+
+    content.innerHTML = `
+      <div class="basket-items">${rows}</div>
+      <hr class="basket-divider" />
+      <div class="basket-total"><span>Total</span><span>${fmt(basketTotal())}</span></div>
+    `;
+
+    content.querySelectorAll('.basket-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        delete basket[btn.dataset.id];
+        renderBasket();
+      });
+    });
+  }
+
+  // ── Load catalogue ─────────────────────────────────────────
+  async function loadCatalog() {
+    const msg  = $('catalog-msg');
+    const grid = $('catalog-grid');
+    msg.textContent = 'Loading catalogue…';
+    msg.className = 'msg';
+
+    try {
+      const res = await fetch(API.catalog);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const products = await res.json();
+      msg.style.display = 'none';
+
+      grid.innerHTML = products.map(p => `
+        <div class="card">
+          <div class="card-category">${esc(p.category)}</div>
+          <div class="card-name">${esc(p.name)}</div>
+          <div class="card-summary">${esc(p.summary)}</div>
+          <div class="card-footer">
+            <span class="card-price">${fmt(p.price)}</span>
+            <button class="btn btn-primary btn-add"
+              data-id="${esc(p.id)}"
+              data-name="${esc(p.name)}"
+              data-price="${p.price}">
+              Add to basket
+            </button>
+          </div>
+        </div>
+      `).join('');
+
+      grid.querySelectorAll('.btn-add').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id    = btn.dataset.id;
+          const name  = btn.dataset.name;
+          const price = parseFloat(btn.dataset.price);
+          if (basket[id]) {
+            basket[id].quantity += 1;
+          } else {
+            basket[id] = { productName: name, price, quantity: 1, color: 'Default' };
+          }
+          renderBasket();
+        });
+      });
+    } catch (err) {
+      msg.textContent = `Could not load catalogue: ${err.message}`;
+      msg.className = 'msg error';
+    }
+  }
+
+  // ── Checkout ───────────────────────────────────────────────
+  $('btn-checkout').addEventListener('click', async () => {
+    const btn = $('btn-checkout');
+    const msgEl = $('checkout-msg');
+    const items = basketItems();
+    if (items.length === 0) return;
+
+    btn.disabled = true;
+    msgEl.style.display = '';
+    msgEl.className = 'msg';
+    msgEl.innerHTML = '<span class="spinner"></span> Placing order…';
+
+    try {
+      // 1. Save basket
+      const basketPayload = { userName: 'demo_user', items };
+      const bRes = await fetch(API.basket, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(basketPayload),
+      });
+      if (!bRes.ok) throw new Error(`Basket save failed (HTTP ${bRes.status})`);
+
+      // 2. Checkout
+      const cRes = await fetch(API.checkout, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(DEMO_BILLING),
+      });
+      if (!cRes.ok) throw new Error(`Checkout failed (HTTP ${cRes.status})`);
+
+      // Success
+      basket = {};
+      renderBasket();
+      msgEl.style.display = 'none';
+      $('panel-confirm').classList.add('open');
+    } catch (err) {
+      msgEl.textContent = err.message;
+      msgEl.className = 'msg error';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // ── Load orders ────────────────────────────────────────────
+  async function loadOrders() {
+    const content = $('orders-content');
+    content.innerHTML = '<span class="spinner"></span>';
+    try {
+      const res = await fetch(API.orders);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const orders = await res.json();
+
+      if (!orders.length) {
+        content.innerHTML = '<p class="msg">No orders yet.</p>';
+        return;
+      }
+
+      content.innerHTML = orders.map(o => `
+        <div class="order-row">
+          <strong>Order #${o.id}</strong>
+          <span>${esc(o.firstName)} ${esc(o.lastName)}</span>
+          <span>${esc(o.addressLine)}, ${esc(o.country)}</span>
+          <span style="font-weight:600;margin-top:4px">${fmt(o.totalPrice)}</span>
+        </div>
+      `).join('');
+    } catch (err) {
+      content.innerHTML = `<p class="msg error">Could not load orders: ${err.message}</p>`;
+    }
+  }
+
+  function openOrders() {
+    $('panel-orders').classList.add('open');
+    loadOrders();
+  }
+
+  // ── Panel wiring ───────────────────────────────────────────
+  $('btn-view-orders').addEventListener('click', openOrders);
+  $('btn-orders-close').addEventListener('click', () => $('panel-orders').classList.remove('open'));
+
+  $('btn-confirm-orders').addEventListener('click', () => {
+    $('panel-confirm').classList.remove('open');
+    openOrders();
+  });
+  $('btn-confirm-close').addEventListener('click', () => $('panel-confirm').classList.remove('open'));
+
+  // Close panels on backdrop click
+  ['panel-confirm', 'panel-orders'].forEach(id => {
+    $(id).addEventListener('click', e => {
+      if (e.target === $(id)) $(id).classList.remove('open');
+    });
+  });
+
+  // ── XSS-safe escaping ──────────────────────────────────────
+  function esc(str) {
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+
+  // ── Init ───────────────────────────────────────────────────
+  loadCatalog();
+</script>
+</body>
+</html>

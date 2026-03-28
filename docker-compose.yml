@@ -1,0 +1,184 @@
+version: '3.8'
+
+# ─── Networks ────────────────────────────────────────────────────────────────
+networks:
+  microservices-net:
+    driver: bridge
+
+# ─── Volumes ─────────────────────────────────────────────────────────────────
+volumes:
+  mongo_data:
+  redis_data:
+  postgres_data:
+  sqlserver_data:
+
+# ─── Services ────────────────────────────────────────────────────────────────
+services:
+
+  # ── Infrastructure ──────────────────────────────────────────────────────────
+
+  mongodb:
+    image: mongo:4.4
+    container_name: mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - microservices-net
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - microservices-net
+
+  postgresql:
+    image: postgres:15-alpine
+    container_name: postgresql
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Omolokonyo1
+      POSTGRES_DB: DiscountDb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - microservices-net
+
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
+    restart: always
+    environment:
+      SA_PASSWORD: "SwN12345678"
+      ACCEPT_EULA: "Y"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    networks:
+      - microservices-net
+
+  rabbitmq:
+    image: rabbitmq:3.12-management-alpine
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - microservices-net
+
+  # ── Microservices ────────────────────────────────────────────────────────────
+
+  catalog.api:
+    image: catalog.api
+    container_name: catalog.api
+    build:
+      context: .
+      dockerfile: Catalog.API/Dockerfile
+    restart: on-failure
+    ports:
+      - "8000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "DatabaseSettings__ConnectionString=mongodb://mongodb:27017"
+      - "DatabaseSettings__DatabaseName=CatalogDb"
+      - "DatabaseSettings__CollectionName=Products"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - microservices-net
+
+
+  basket.api:
+    image: basket.api
+    container_name: basket.api
+    build:
+      context: .
+      dockerfile: Basket.API/Dockerfile
+    restart: on-failure
+    ports:
+      - "8001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "CacheSettings__ConnectionString=redis:6379"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - redis
+      - rabbitmq
+    networks:
+      - microservices-net
+
+  discount.api:
+    image: discount.api
+    container_name: discount.api
+    build:
+      context: .
+      dockerfile: Dicount.API/Dockerfile
+    restart: on-failure
+    ports:
+      - "8002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings__DefaultConnection=Host=postgresql;Database=DiscountDb;Username=postgres;Password=Omolokonyo1"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - postgresql
+      - rabbitmq
+    networks:
+      - microservices-net
+
+  ordering.api:
+    image: ordering.api
+    container_name: ordering.api
+    build:
+      context: .
+      dockerfile: Ordering_API/Dockerfile
+    restart: on-failure
+    ports:
+      - "8003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - "ConnectionStrings__OrderingConnectionString=Server=sqlserver,1433;Database=OrderingDb;User Id=sa;Password=SwN12345678;MultipleActiveResultSets=true;TrustServerCertificate=True"
+      - "RabbitMQ__Host=rabbitmq"
+    depends_on:
+      - sqlserver
+      - rabbitmq
+    networks:
+      - microservices-net
+
+
+  apigateway:
+    image: apigateway
+    container_name: apigateway
+    build:
+      context: .
+      dockerfile: ApiGateways/Dockerfile
+    restart: on-failure
+    ports:
+      - "5000:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    depends_on:
+      - catalog.api
+      - basket.api
+      - discount.api
+      - ordering.api
+    networks:
+      - microservices-net
