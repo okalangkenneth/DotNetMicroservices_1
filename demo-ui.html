@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shop Demo</title>
+  <title>Shop Demo — DotNet Microservices</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -14,7 +14,6 @@
       min-height: 100vh;
     }
 
-    /* ── Header ─────────────────────────────────────────────── */
     header {
       background: #fff;
       border-bottom: 1px solid #e0e0e0;
@@ -28,7 +27,17 @@
       z-index: 100;
     }
     header h1 { font-size: 18px; font-weight: 600; letter-spacing: -0.3px; }
-    header nav { display: flex; gap: 12px; }
+    header nav { display: flex; gap: 12px; align-items: center; }
+
+    .env-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.4px;
+    }
+    .env-badge.local      { background: #fef9c3; color: #854d0e; }
+    .env-badge.production { background: #dcfce7; color: #166534; }
 
     .btn {
       display: inline-flex;
@@ -48,8 +57,8 @@
     .btn-secondary { background: #fff; color: #111; border: 1px solid #ccc; }
     .btn-success   { background: #16a34a; color: #fff; }
     .btn-outline   { background: transparent; color: #111; border: 1px solid #ccc; }
+    .btn-sm        { padding: 5px 10px; font-size: 12px; }
 
-    /* ── Layout ─────────────────────────────────────────────── */
     .layout {
       display: flex;
       gap: 0;
@@ -62,7 +71,6 @@
       max-width: 900px;
     }
 
-    /* ── Product grid ───────────────────────────────────────── */
     .section-title {
       font-size: 20px;
       font-weight: 600;
@@ -102,7 +110,6 @@
     }
     .card-price { font-size: 17px; font-weight: 700; }
 
-    /* ── Basket sidebar ─────────────────────────────────────── */
     aside {
       width: 300px;
       min-width: 300px;
@@ -120,7 +127,6 @@
     aside h2 { font-size: 16px; font-weight: 600; }
 
     .basket-empty { font-size: 13px; color: #888; }
-
     .basket-items { display: flex; flex-direction: column; gap: 12px; }
 
     .basket-item {
@@ -136,18 +142,12 @@
     .basket-item-qty { color: #888; font-size: 12px; }
 
     .basket-remove {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #bbb;
-      font-size: 16px;
-      line-height: 1;
-      padding: 0 2px;
+      background: none; border: none; cursor: pointer;
+      color: #bbb; font-size: 16px; line-height: 1; padding: 0 2px;
     }
     .basket-remove:hover { color: #e53e3e; }
 
     .basket-divider { border: none; border-top: 1px solid #e8e8e8; }
-
     .basket-total {
       display: flex;
       justify-content: space-between;
@@ -155,7 +155,6 @@
       font-weight: 700;
     }
 
-    /* ── Panels (confirmation / orders) ────────────────────── */
     .panel {
       display: none;
       position: fixed;
@@ -182,6 +181,37 @@
     .panel-box h2 { font-size: 18px; font-weight: 700; }
     .panel-box p  { font-size: 14px; color: #444; line-height: 1.5; }
 
+    /* Config panel */
+    .config-grid {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 8px 12px;
+      align-items: center;
+      font-size: 13px;
+    }
+    .config-grid label { font-weight: 600; color: #555; }
+    .config-grid input {
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 6px 10px;
+      font-size: 13px;
+      width: 100%;
+    }
+    .config-note {
+      font-size: 12px;
+      color: #888;
+      line-height: 1.5;
+      background: #f9f9f9;
+      border-radius: 6px;
+      padding: 10px 12px;
+    }
+    .config-note code {
+      background: #eee;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 11px;
+    }
+
     .order-row {
       background: #f9f9f9;
       border: 1px solid #e8e8e8;
@@ -194,11 +224,9 @@
     }
     .order-row strong { font-size: 14px; }
 
-    /* ── State messages ─────────────────────────────────────── */
     .msg { font-size: 14px; color: #555; padding: 8px 0; }
     .msg.error { color: #e53e3e; }
 
-    /* ── Spinner ────────────────────────────────────────────── */
     @keyframes spin { to { transform: rotate(360deg); } }
     .spinner {
       width: 18px; height: 18px;
@@ -215,6 +243,8 @@
 <header>
   <h1>Shop Demo</h1>
   <nav>
+    <span class="env-badge" id="env-badge">LOCAL</span>
+    <button class="btn btn-outline btn-sm" id="btn-config">Configure APIs</button>
     <button class="btn btn-outline" id="btn-view-orders">View Orders</button>
   </nav>
 </header>
@@ -236,13 +266,41 @@
   </aside>
 </div>
 
+<!-- Config panel -->
+<div class="panel" id="panel-config">
+  <div class="panel-box" style="max-width:540px">
+    <h2>API Configuration</h2>
+    <p>Enter your deployed service URLs below. Leave empty to use localhost defaults.</p>
+    <div class="config-grid">
+      <label>Catalog</label>
+      <input id="cfg-catalog" type="url" placeholder="http://localhost:8000" />
+      <label>Basket</label>
+      <input id="cfg-basket"  type="url" placeholder="http://localhost:8001" />
+      <label>Discount</label>
+      <input id="cfg-discount" type="url" placeholder="http://localhost:8002" />
+      <label>Ordering</label>
+      <input id="cfg-ordering" type="url" placeholder="http://localhost:8003" />
+    </div>
+    <div class="config-note">
+      URLs are saved to <code>localStorage</code> and persist across page refreshes.<br>
+      You can also pass them as query params:<br>
+      <code>demo-ui.html?catalog=https://…&basket=https://…</code>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary"   id="btn-config-save">Save &amp; Reload</button>
+      <button class="btn btn-secondary" id="btn-config-cancel">Cancel</button>
+      <button class="btn btn-outline"   id="btn-config-reset" style="margin-left:auto">Reset to local</button>
+    </div>
+  </div>
+</div>
+
 <!-- Confirmation panel -->
 <div class="panel" id="panel-confirm">
   <div class="panel-box">
     <h2>Order placed!</h2>
-    <p>Your order has been received and is being processed. We'll send a confirmation to <strong>demo@example.com</strong>.</p>
+    <p>Your order has been received and is being processed. A confirmation would go to <strong>demo@example.com</strong>.</p>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
-      <button class="btn btn-success" id="btn-confirm-orders">View my orders</button>
+      <button class="btn btn-success"   id="btn-confirm-orders">View my orders</button>
       <button class="btn btn-secondary" id="btn-confirm-close">Continue shopping</button>
     </div>
   </div>
@@ -258,45 +316,71 @@
 </div>
 
 <script>
-  const API = {
-    catalog:  'http://localhost:8000/api/v1/Catalog',
-    basket:   'http://localhost:8001/api/v1/Basket',
-    checkout: 'http://localhost:8001/api/v1/Basket/Checkout',
-    orders:   'http://localhost:8003/api/v1/Order/demo_user',
+  // ── API URL resolution ─────────────────────────────────────
+  // Priority: 1) URL query params  2) localStorage  3) localhost defaults
+  const DEFAULTS = {
+    catalog:  'http://localhost:8000',
+    basket:   'http://localhost:8001',
+    discount: 'http://localhost:8002',
+    ordering: 'http://localhost:8003',
   };
 
+  function resolveURLs() {
+    const params = new URLSearchParams(window.location.search);
+    const stored = JSON.parse(localStorage.getItem('api_config') || '{}');
+    return {
+      catalog:  params.get('catalog')  || stored.catalog  || DEFAULTS.catalog,
+      basket:   params.get('basket')   || stored.basket   || DEFAULTS.basket,
+      discount: params.get('discount') || stored.discount || DEFAULTS.discount,
+      ordering: params.get('ordering') || stored.ordering || DEFAULTS.ordering,
+    };
+  }
+
+  let URLS = resolveURLs();
+
+  const API = {
+    get catalog()  { return `${URLS.catalog}/api/v1/Catalog`; },
+    get basket()   { return `${URLS.basket}/api/v1/Basket`; },
+    get checkout() { return `${URLS.basket}/api/v1/Basket/Checkout`; },
+    get orders()   { return `${URLS.ordering}/api/v1/Order/demo_user`; },
+  };
+
+  function isLocal() {
+    return Object.values(URLS).every(u => u.includes('localhost'));
+  }
+
+  function updateEnvBadge() {
+    const badge = $('env-badge');
+    if (isLocal()) {
+      badge.textContent = 'LOCAL';
+      badge.className = 'env-badge local';
+    } else {
+      badge.textContent = 'LIVE';
+      badge.className = 'env-badge production';
+    }
+  }
+
   const DEMO_BILLING = {
-    userName:     'demo_user',
-    firstName:    'Demo',
-    lastName:     'User',
-    emailAddress: 'demo@example.com',
-    addressLine:  '123 Demo Street',
-    country:      'Sweden',
-    state:        'Stockholm',
-    zipCode:      '11122',
-    cardName:     'Demo User',
-    cardNumber:   '4111111111111111',
-    expiration:   '12/26',
-    cvv:          '123',
-    paymentMethod: 1,
+    userName: 'demo_user', firstName: 'Demo', lastName: 'User',
+    emailAddress: 'demo@example.com', addressLine: '123 Demo Street',
+    country: 'Sweden', state: 'Stockholm', zipCode: '11122',
+    cardName: 'Demo User', cardNumber: '4111111111111111',
+    expiration: '12/26', cvv: '123', paymentMethod: 1,
   };
 
   // ── State ──────────────────────────────────────────────────
-  let basket = {};   // { productId: { productName, price, quantity, color } }
+  let basket = {};
 
   // ── Helpers ────────────────────────────────────────────────
   const $ = id => document.getElementById(id);
+  const fmt = n => '$' + Number(n).toFixed(2);
+  const basketTotal = () => Object.values(basket).reduce((s, i) => s + i.price * i.quantity, 0);
+  const basketItems = () => Object.entries(basket).map(([productId, item]) => ({ productId, ...item }));
 
-  function fmt(n) {
-    return '$' + Number(n).toFixed(2);
-  }
-
-  function basketTotal() {
-    return Object.values(basket).reduce((s, i) => s + i.price * i.quantity, 0);
-  }
-
-  function basketItems() {
-    return Object.entries(basket).map(([productId, item]) => ({ productId, ...item }));
+  function esc(str) {
+    return String(str)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
   // ── Render basket ──────────────────────────────────────────
@@ -305,14 +389,13 @@
     const content = $('basket-content');
     const btnCheckout = $('btn-checkout');
 
-    if (items.length === 0) {
+    if (!items.length) {
       content.innerHTML = '<p class="basket-empty">Your basket is empty.</p>';
       btnCheckout.style.display = 'none';
       return;
     }
 
     btnCheckout.style.display = '';
-
     const rows = items.map(item => `
       <div class="basket-item">
         <span class="basket-item-name">${esc(item.productName)}</span>
@@ -321,29 +404,25 @@
           <div class="basket-item-qty">qty ${item.quantity}</div>
         </div>
         <button class="basket-remove" data-id="${esc(item.productId)}" title="Remove">×</button>
-      </div>
-    `).join('');
+      </div>`).join('');
 
     content.innerHTML = `
       <div class="basket-items">${rows}</div>
-      <hr class="basket-divider" />
-      <div class="basket-total"><span>Total</span><span>${fmt(basketTotal())}</span></div>
-    `;
+      <hr class="basket-divider"/>
+      <div class="basket-total"><span>Total</span><span>${fmt(basketTotal())}</span></div>`;
 
-    content.querySelectorAll('.basket-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
-        delete basket[btn.dataset.id];
-        renderBasket();
-      });
-    });
+    content.querySelectorAll('.basket-remove').forEach(btn =>
+      btn.addEventListener('click', () => { delete basket[btn.dataset.id]; renderBasket(); }));
   }
 
   // ── Load catalogue ─────────────────────────────────────────
   async function loadCatalog() {
-    const msg  = $('catalog-msg');
+    const msg = $('catalog-msg');
     const grid = $('catalog-grid');
     msg.textContent = 'Loading catalogue…';
     msg.className = 'msg';
+    msg.style.display = '';
+    grid.innerHTML = '';
 
     try {
       const res = await fetch(API.catalog);
@@ -359,28 +438,19 @@
           <div class="card-footer">
             <span class="card-price">${fmt(p.price)}</span>
             <button class="btn btn-primary btn-add"
-              data-id="${esc(p.id)}"
-              data-name="${esc(p.name)}"
-              data-price="${p.price}">
+              data-id="${esc(p.id)}" data-name="${esc(p.name)}" data-price="${p.price}">
               Add to basket
             </button>
           </div>
-        </div>
-      `).join('');
+        </div>`).join('');
 
-      grid.querySelectorAll('.btn-add').forEach(btn => {
+      grid.querySelectorAll('.btn-add').forEach(btn =>
         btn.addEventListener('click', () => {
-          const id    = btn.dataset.id;
-          const name  = btn.dataset.name;
-          const price = parseFloat(btn.dataset.price);
-          if (basket[id]) {
-            basket[id].quantity += 1;
-          } else {
-            basket[id] = { productName: name, price, quantity: 1, color: 'Default' };
-          }
+          const { id, name, price } = btn.dataset;
+          if (basket[id]) basket[id].quantity += 1;
+          else basket[id] = { productName: name, price: parseFloat(price), quantity: 1, color: 'Default' };
           renderBasket();
-        });
-      });
+        }));
     } catch (err) {
       msg.textContent = `Could not load catalogue: ${err.message}`;
       msg.className = 'msg error';
@@ -392,7 +462,7 @@
     const btn = $('btn-checkout');
     const msgEl = $('checkout-msg');
     const items = basketItems();
-    if (items.length === 0) return;
+    if (!items.length) return;
 
     btn.disabled = true;
     msgEl.style.display = '';
@@ -400,16 +470,13 @@
     msgEl.innerHTML = '<span class="spinner"></span> Placing order…';
 
     try {
-      // 1. Save basket
-      const basketPayload = { userName: 'demo_user', items };
       const bRes = await fetch(API.basket, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(basketPayload),
+        body: JSON.stringify({ userName: 'demo_user', items }),
       });
       if (!bRes.ok) throw new Error(`Basket save failed (HTTP ${bRes.status})`);
 
-      // 2. Checkout
       const cRes = await fetch(API.checkout, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -417,7 +484,6 @@
       });
       if (!cRes.ok) throw new Error(`Checkout failed (HTTP ${cRes.status})`);
 
-      // Success
       basket = {};
       renderBasket();
       msgEl.style.display = 'none';
@@ -439,56 +505,71 @@
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const orders = await res.json();
 
-      if (!orders.length) {
-        content.innerHTML = '<p class="msg">No orders yet.</p>';
-        return;
-      }
-
-      content.innerHTML = orders.map(o => `
-        <div class="order-row">
-          <strong>Order #${o.id}</strong>
-          <span>${esc(o.firstName)} ${esc(o.lastName)}</span>
-          <span>${esc(o.addressLine)}, ${esc(o.country)}</span>
-          <span style="font-weight:600;margin-top:4px">${fmt(o.totalPrice)}</span>
-        </div>
-      `).join('');
+      content.innerHTML = orders.length
+        ? orders.map(o => `
+            <div class="order-row">
+              <strong>Order #${o.id}</strong>
+              <span>${esc(o.firstName)} ${esc(o.lastName)}</span>
+              <span>${esc(o.addressLine)}, ${esc(o.country)}</span>
+              <span style="font-weight:600;margin-top:4px">${fmt(o.totalPrice)}</span>
+            </div>`).join('')
+        : '<p class="msg">No orders yet.</p>';
     } catch (err) {
       content.innerHTML = `<p class="msg error">Could not load orders: ${err.message}</p>`;
     }
   }
 
-  function openOrders() {
-    $('panel-orders').classList.add('open');
-    loadOrders();
+  function openOrders() { $('panel-orders').classList.add('open'); loadOrders(); }
+
+  // ── Config panel ───────────────────────────────────────────
+  function openConfig() {
+    $('cfg-catalog').value  = URLS.catalog  !== DEFAULTS.catalog  ? URLS.catalog  : '';
+    $('cfg-basket').value   = URLS.basket   !== DEFAULTS.basket   ? URLS.basket   : '';
+    $('cfg-discount').value = URLS.discount !== DEFAULTS.discount ? URLS.discount : '';
+    $('cfg-ordering').value = URLS.ordering !== DEFAULTS.ordering ? URLS.ordering : '';
+    $('panel-config').classList.add('open');
   }
+
+  $('btn-config').addEventListener('click', openConfig);
+  $('btn-config-cancel').addEventListener('click', () => $('panel-config').classList.remove('open'));
+
+  $('btn-config-reset').addEventListener('click', () => {
+    localStorage.removeItem('api_config');
+    URLS = { ...DEFAULTS };
+    updateEnvBadge();
+    $('panel-config').classList.remove('open');
+    loadCatalog();
+  });
+
+  $('btn-config-save').addEventListener('click', () => {
+    const updated = {
+      catalog:  $('cfg-catalog').value.replace(/\/$/, '')  || DEFAULTS.catalog,
+      basket:   $('cfg-basket').value.replace(/\/$/, '')   || DEFAULTS.basket,
+      discount: $('cfg-discount').value.replace(/\/$/, '') || DEFAULTS.discount,
+      ordering: $('cfg-ordering').value.replace(/\/$/, '') || DEFAULTS.ordering,
+    };
+    localStorage.setItem('api_config', JSON.stringify(updated));
+    URLS = updated;
+    updateEnvBadge();
+    $('panel-config').classList.remove('open');
+    basket = {};
+    renderBasket();
+    loadCatalog();
+  });
 
   // ── Panel wiring ───────────────────────────────────────────
   $('btn-view-orders').addEventListener('click', openOrders);
   $('btn-orders-close').addEventListener('click', () => $('panel-orders').classList.remove('open'));
-
   $('btn-confirm-orders').addEventListener('click', () => {
-    $('panel-confirm').classList.remove('open');
-    openOrders();
+    $('panel-confirm').classList.remove('open'); openOrders();
   });
   $('btn-confirm-close').addEventListener('click', () => $('panel-confirm').classList.remove('open'));
 
-  // Close panels on backdrop click
-  ['panel-confirm', 'panel-orders'].forEach(id => {
-    $(id).addEventListener('click', e => {
-      if (e.target === $(id)) $(id).classList.remove('open');
-    });
-  });
-
-  // ── XSS-safe escaping ──────────────────────────────────────
-  function esc(str) {
-    return String(str)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;');
-  }
+  ['panel-confirm', 'panel-orders', 'panel-config'].forEach(id =>
+    $(id).addEventListener('click', e => { if (e.target === $(id)) $(id).classList.remove('open'); }));
 
   // ── Init ───────────────────────────────────────────────────
+  updateEnvBadge();
   loadCatalog();
 </script>
 </body>
