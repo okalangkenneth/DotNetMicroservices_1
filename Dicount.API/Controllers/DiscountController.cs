@@ -1,6 +1,7 @@
 ﻿using Discount.API.Entities;
 using Discount.API.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -12,10 +13,12 @@ namespace Discount.API.Controllers
     public class DiscountController : ControllerBase
     {
         private readonly IDiscountRepository _repository;
+        private readonly ILogger<DiscountController> _logger;
 
-        public DiscountController(IDiscountRepository repository)
+        public DiscountController(IDiscountRepository repository, ILogger<DiscountController> logger)
         {
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         [HttpGet("{productName}", Name = "GetDiscount")]
@@ -23,6 +26,7 @@ namespace Discount.API.Controllers
         public async Task<ActionResult<Coupon>> GetDiscount(string productName)
         {
             var discount = await _repository.GetDiscount(productName);
+            _logger.LogInformation("Discount retrieved for product {ProductName}: {Amount}% off.", productName, discount.Amount);
             return Ok(discount);
         }
 
