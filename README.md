@@ -15,6 +15,9 @@
 
 ## Overview
 
+<img width="805" height="923" alt="Screenshot" src="https://github.com/user-attachments/assets/ebf76dfe-61c0-48ff-8dd5-a43813b61d5e" />
+
+
 This project implements a complete e-commerce backend as independently deployable
 microservices, the kind of architecture used by engineering teams that need to scale,
 deploy, and maintain individual components without touching the rest of the system.
@@ -28,6 +31,8 @@ rate limiting, and response aggregation.
 to Elasticsearch. Kibana gives you a real-time view across the entire platform, search
 by service, trace a checkout end-to-end, or filter for errors across all four services
 in one place.
+
+![SharedScreenshot-1](https://github.com/user-attachments/assets/045ce48e-3dc7-4143-a6a9-604130619783)
 
 A zero-dependency demo UI (plain HTML, no build step) connects to the live APIs and
 walks through the full purchase flow: browse → discount → basket → checkout → order.
