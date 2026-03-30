@@ -6,18 +6,33 @@
 [![.NET](https://img.shields.io/badge/.NET-5.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com)
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker)](https://docker.com)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Event%20Bus-FF6600?logo=rabbitmq)](https://rabbitmq.com)
+[![Elasticsearch](https://img.shields.io/badge/ELK-Logging-005571?logo=elasticsearch)](https://elastic.co)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+🔗 **[Live Demo](https://okalangkenneth.github.io/DotNetMicroservices_1/demo-ui.html)** — browse products, add to basket, checkout, view orders
 
 ---
 
 ## Overview
 
-This project showcases a complete e-commerce backend built as independently deployable
-microservices. Each service owns its own database, communicates asynchronously via
-RabbitMQ, and is accessible through a single Ocelot API Gateway. A zero-dependency
-demo UI lets you walk through a full purchase flow in the browser.
+This project implements a complete e-commerce backend as independently deployable
+microservices — the kind of architecture used by engineering teams that need to scale,
+deploy, and maintain individual components without touching the rest of the system.
 
-**One command starts the entire platform:**
+**Four services, four databases, one event bus:** each service owns its data store
+exclusively (MongoDB, Redis, PostgreSQL, SQL Server), communicates asynchronously via
+RabbitMQ, and is reachable through a single Ocelot API Gateway that handles routing,
+rate limiting, and response aggregation.
+
+**Observability built in:** every service emits structured logs via Serilog, shipped
+to Elasticsearch. Kibana gives you a real-time view across the entire platform — search
+by service, trace a checkout end-to-end, or filter for errors across all four services
+in one place.
+
+A zero-dependency demo UI (plain HTML, no build step) connects to the live APIs and
+walks through the full purchase flow: browse → discount → basket → checkout → order.
+
+**One command starts the entire platform — APIs, databases, message broker, and ELK:**
 ```bash
 docker-compose up --build
 ```
