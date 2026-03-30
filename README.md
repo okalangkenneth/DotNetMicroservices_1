@@ -232,13 +232,13 @@ DotNetMicroservices_1/
 
 This project covers the full spectrum of distributed systems concerns:
 
-- Designing **service boundaries** — what belongs in each service and why
-- **Async messaging** — decoupling checkout from order creation with RabbitMQ
-- **CQRS** — separating read models from write commands; every operation has a dedicated handler
-- **Gateway patterns** — routing, rate limiting, and aggregating responses at the edge
-- **Database-per-service** — choosing the right storage for each problem (cache vs document vs relational)
-- **Docker orchestration** — networking, environment-based config, startup dependencies
-- **Auto-migration** — zero-touch schema setup via DbUp embedded scripts
+- Designing **service boundaries**: what belongs in each service and why
+- **Async messaging**: decoupling checkout from order creation with RabbitMQ
+- **CQRS** : separating read models from write commands; every operation has a dedicated handler
+- **Gateway patterns**: routing, rate limiting, and aggregating responses at the edge
+- **Database-per-service**: choosing the right storage for each problem (cache vs document vs relational)
+- **Docker orchestration**: networking, environment-based config, startup dependencies
+- **Auto-migration**: zero-touch schema setup via DbUp embedded scripts
 
 ---
 
