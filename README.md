@@ -67,6 +67,8 @@ with no direct HTTP coupling between the two services.
 | **Discount API** | 8002 | PostgreSQL | Coupon management — queried by basket at checkout |
 | **Ordering API** | 8003 | SQL Server | Order lifecycle — CQRS / MediatR, EF Core, email notification |
 | **API Gateway** | 5000 | — | Ocelot routing, rate limiting, response aggregation |
+| **Elasticsearch** | 9200 | — | Log storage |
+| **Kibana Dashboard** | 5601 | — | Log visualisation |
 
 
 ---
@@ -105,6 +107,11 @@ with no direct HTTP coupling between the two services.
 - Redis 7 — distributed cache for shopping baskets
 - PostgreSQL 15 — relational store for discount coupons
 - SQL Server 2022 — relational store for orders
+
+**Logging**
+- Serilog — structured logging across all services
+- Elasticsearch — log storage and indexing
+- Kibana — log visualisation and dashboards
 
 **Infrastructure**
 - Docker + Docker Compose — full local orchestration
@@ -180,6 +187,8 @@ DELETE /Order/{id}                           — delete order
 | Discount API | http://localhost:8002/swagger |
 | Ordering API | http://localhost:8003/swagger |
 | RabbitMQ Dashboard | http://localhost:15672 (guest / guest) |
+| Kibana Dashboard | http://localhost:5601 |
+| Elasticsearch | http://localhost:9200 |
 
 ---
 

@@ -11,6 +11,7 @@ volumes:
   redis_data:
   postgres_data:
   sqlserver_data:
+  elasticsearch_data:
 
 # ─── Services ────────────────────────────────────────────────────────────────
 services:
@@ -82,6 +83,32 @@ services:
     networks:
       - microservices-net
 
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.17.10
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    networks:
+      - microservices-net
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.17.10
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    depends_on:
+      - elasticsearch
+    networks:
+      - microservices-net
+
   # ── Microservices ────────────────────────────────────────────────────────────
 
   catalog.api:
@@ -99,9 +126,11 @@ services:
       - "DatabaseSettings__DatabaseName=CatalogDb"
       - "DatabaseSettings__CollectionName=Products"
       - "RabbitMQ__Host=rabbitmq"
+      - "ElasticSearch__Uri=http://elasticsearch:9200"
     depends_on:
       - mongodb
       - rabbitmq
+      - elasticsearch
     networks:
       - microservices-net
 
@@ -119,9 +148,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "CacheSettings__ConnectionString=redis:6379"
       - "RabbitMQ__Host=rabbitmq"
+      - "ElasticSearch__Uri=http://elasticsearch:9200"
     depends_on:
       - redis
       - rabbitmq
+      - elasticsearch
     networks:
       - microservices-net
 
@@ -138,9 +169,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings__DefaultConnection=Host=postgresql;Database=DiscountDb;Username=postgres;Password=Omolokonyo1"
       - "RabbitMQ__Host=rabbitmq"
+      - "ElasticSearch__Uri=http://elasticsearch:9200"
     depends_on:
       - postgresql
       - rabbitmq
+      - elasticsearch
     networks:
       - microservices-net
 
@@ -157,9 +190,11 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - "ConnectionStrings__OrderingConnectionString=Server=sqlserver,1433;Database=OrderingDb;User Id=sa;Password=SwN12345678;MultipleActiveResultSets=true;TrustServerCertificate=True"
       - "RabbitMQ__Host=rabbitmq"
+      - "ElasticSearch__Uri=http://elasticsearch:9200"
     depends_on:
       - sqlserver
       - rabbitmq
+      - elasticsearch
     networks:
       - microservices-net
 
