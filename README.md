@@ -92,30 +92,30 @@ with no direct HTTP coupling between the two services.
 
 **Backend**
 - ASP.NET Core 5 Web API
-- MediatR 11 — CQRS command/query dispatching
-- AutoMapper — object mapping across layers
-- FluentValidation — declarative request validation
-- Entity Framework Core 5 — ORM for SQL Server
-- Dapper — lightweight ORM for PostgreSQL
+- MediatR 11 : CQRS command/query dispatching
+- AutoMapper: object mapping across layers
+- FluentValidation: declarative request validation
+- Entity Framework Core 5: ORM for SQL Server
+- Dapper: lightweight ORM for PostgreSQL
 
 **Messaging**
-- RabbitMQ 3.12 — async event bus
-- RabbitMQ.Client — producer and consumer implementation
+- RabbitMQ 3.12 : async event bus
+- RabbitMQ.Client : producer and consumer implementation
 
 **Databases**
-- MongoDB 6 — document store for product catalogue
-- Redis 7 — distributed cache for shopping baskets
-- PostgreSQL 15 — relational store for discount coupons
-- SQL Server 2022 — relational store for orders
+- MongoDB 6 : document store for product catalogue
+- Redis 7 : distributed cache for shopping baskets
+- PostgreSQL 15 : relational store for discount coupons
+- SQL Server 2022 : relational store for orders
 
 **Logging**
-- Serilog — structured logging across all services
-- Elasticsearch — log storage and indexing
-- Kibana — log visualisation and dashboards
+- Serilog : structured logging across all services
+- Elasticsearch : log storage and indexing
+- Kibana : log visualisation and dashboards
 
 **Infrastructure**
-- Docker + Docker Compose — full local orchestration
-- Ocelot 15 — API gateway with routing, rate limiting, aggregation
+- Docker + Docker Compose : full local orchestration
+- Ocelot 15 : API gateway with routing, rate limiting, aggregation
 
 ---
 
@@ -133,7 +133,7 @@ docker-compose up --build
 ```
 
 All containers start automatically. Services, databases, and RabbitMQ are wired
-together via Docker networking — no manual configuration needed.
+together via Docker networking, no manual configuration needed.
 
 ---
 
