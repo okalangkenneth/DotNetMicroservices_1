@@ -16,7 +16,7 @@
 ## Overview
 
 This project implements a complete e-commerce backend as independently deployable
-microservices — the kind of architecture used by engineering teams that need to scale,
+microservices, the kind of architecture used by engineering teams that need to scale,
 deploy, and maintain individual components without touching the rest of the system.
 
 **Four services, four databases, one event bus:** each service owns its data store
@@ -25,14 +25,14 @@ RabbitMQ, and is reachable through a single Ocelot API Gateway that handles rout
 rate limiting, and response aggregation.
 
 **Observability built in:** every service emits structured logs via Serilog, shipped
-to Elasticsearch. Kibana gives you a real-time view across the entire platform — search
+to Elasticsearch. Kibana gives you a real-time view across the entire platform, search
 by service, trace a checkout end-to-end, or filter for errors across all four services
 in one place.
 
 A zero-dependency demo UI (plain HTML, no build step) connects to the live APIs and
 walks through the full purchase flow: browse → discount → basket → checkout → order.
 
-**One command starts the entire platform — APIs, databases, message broker, and ELK:**
+**One command starts the entire platform, APIs, databases, message broker, and ELK:**
 ```bash
 docker-compose up --build
 ```
